@@ -32,4 +32,19 @@ The gtf file used to measure background noise can be downloaded in the gtf folde
 
 ### XBSeq testing for DE 
 
-After HTSeq procedure, the 
+After HTSeq procedure, the we will have two measurements for each gene, the observed signal and background noise. The differential expression analysis will be carried out as follows:
+
+```r
+# Observe and background are the output matrix from HTSeq
+Signal <- estimateRealcount(observe, background)
+# conditions are the design matrix for the experiment
+XB <- newXBSeqDataSet(Signal,conditions)
+XB <- estimateSizeFactorsXBSeq( XB )
+XB <-estimateSCV( XB, observe, background, method='pooled', sharingMode='maximum', fitType='parametric' )
+Teststas <- XBSeqTest( XB, levels(conditions)[1L], levels(conditions)[2L], pvals_only=pvals_only )
+
+# Alternatively, all the codes above can be done with a wrapper function XBSeq
+Teststats <- XBSeq( observe, background, conditions, method='pooled', sharingMode='maximum', fitType='parametric', pvals_only=FALSE )
+```
+# Acknowledgements 
+XBSeq is implemented based on the source code from DESeq. 
