@@ -47,4 +47,4 @@ Teststas <- XBSeqTest( XB, levels(conditions)[1L], levels(conditions)[2L], pvals
 Teststats <- XBSeq( observe, background, conditions, method='pooled', sharingMode='maximum', fitType='parametric', pvals_only=FALSE )
 ```
 # Acknowledgements 
-XBSeq is implemented based on the source code from DESeq. 
+XBSeq is implemented in R based on the source code from DESeq. 
