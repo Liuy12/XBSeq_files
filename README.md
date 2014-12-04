@@ -15,7 +15,7 @@ Firstly, please make sure that the devtools package installed and loaded in your
 install.packages("devtools")
 library(devtools)
 ```
-Then, use install XBSeq directly from github 
+Then, install XBSeq directly from github 
 ```r
 install_github("Liuy12/XBSeq/XBSeq")
 library('XBSeq')
