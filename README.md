@@ -17,7 +17,7 @@ library(devtools)
 ```
 Then, install XBSeq directly from github 
 ```r
-install_github("Liuy12/XBSeq/XBSeq")
+install_github("Liuy12/XBSeq/XBSeq_1.0")
 library('XBSeq')
 ```
 XBSeq depends on Biobase, locfit, pracma, matrixStats, ggplot2 from Bioconductor
