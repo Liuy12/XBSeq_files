@@ -1,0 +1,35 @@
+\name{XBSeq-package}
+\alias{XBSeq-package}
+\alias{XBSeq}
+\docType{package}
+\title{
+   Differential expression analysis of RNA sequencing data by incorporating non-exonic mapped reads
+}
+\description{
+   We developed a novel algorithm, XBSeq, where a statistical model was established based on the 
+   assumption that observed signals are the convolution of true expression signals and sequencing 
+   noises. The mapped reads in non-exonic regions are considered as sequencing noises, which follows 
+   a Poisson distribution. Given measureable observed and noise signals from RNA-seq data, true 
+   expression signals, assuming governed by the negative binomial distribution, can be delineated 
+   and thus the accurate detection of differential expressed genes.
+}
+\details{
+\tabular{ll}{
+Package: \tab XBSeq\cr
+Type: \tab Package\cr
+Version: \tab 1.0\cr
+Date: \tab 2014-11-19\cr
+License: \tab >=GPL3\cr
+Depends: \tab Biobase, pracma, matrixStats, locfit, ggplot2\cr
+}
+}
+\author{
+   Yuanhang Liu
+
+Maintainer: Yuanhang Liu <liuy12@uthscsa.edu>
+}
+\references{
+   Simon Anders, Wolfgang Huber: Differential expression
+   analysis for sequence count data. Genome Biology 11 (2010)
+   R106, \url{http://dx.doi.org/10.1186/gb-2010-11-10-r106}
+}

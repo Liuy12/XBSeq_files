@@ -1,0 +1,16 @@
+exportPattern("^[[:alpha:]]+")
+exportMethods(
+    "conditions",
+    "conditions<-",
+    "counts",
+    "counts<-",
+    "dispTable",
+    "dispTable<-",
+    "estimateSCV",
+    "estimateSizeFactorsXBSeq",
+    "sizeFactors",
+    "sizeFactors<-" 
+)
+exportClasses(
+    "XBSeqDataSet" 
+)
