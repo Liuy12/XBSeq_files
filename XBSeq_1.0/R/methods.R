@@ -256,8 +256,8 @@ predict_helper <- function( fit, x )
 XBSeqTestForMatrices <- function( countsA, countsB, sizeFactorsA, sizeFactorsB,
                                   SCVA, SCVB )
 {
-  kAs <- rowSums( countsA )
-  kBs <- rowSums( countsB )
+  kAs <- apply( countsA,1,sum )
+  kBs <- apply( countsB ,1,sum)
 
   mus <- rowMeans( cbind(
     t( t( countsA ) / sizeFactorsA ),
@@ -405,7 +405,7 @@ prepareScvBiasCorrectionFits <- function( maxnrepl=15, mu=100000, ngenes=10000,
 
 adjustScv <- function( scv, nsamples ) {
   stopifnot( nsamples > 1 )
-  if(exists(("scvBiasCorrectionFits.rda")))
+  if(file.exists(("scvBiasCorrectionFits.rda")))
     load( "scvBiasCorrectionFits.rda" )
   else{
     scvBiasCorrectionFits<-prepareScvBiasCorrectionFits(maxnrepl=15, mu=100000, ngenes=10000,
