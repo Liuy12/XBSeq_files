@@ -1,6 +1,6 @@
 \name{estimateSCV}
 \docType{methods}
-\alias{estimateSCV-methods}
+\alias{estimateSCV}
 \alias{estimateSCV,XBSeqDataSet-method}
 \title{Estimate squared coefficient of variation for each gene}
 \description{
@@ -10,7 +10,7 @@
 \S4method{estimateSCV}{XBSeqDataSet}( object, observe, background,
    method = c( "pooled", "pooled-CR", "per-condition", "blind" ),
    sharingMode = c( "maximum", "fit-only", "gene-est-only" ),
-   fitType = c("parametric", "local"),
+   fitType = c("local","parametric"),
    locfit_extra_args=list(), lp_extra_args=list(),
    modelFrame = NULL, modelFormula = count ~ condition, ... )
 }
@@ -74,8 +74,7 @@
      average expression similar to those of this gene). The
      \code{sharingMode} argument specifies which of these two values
      will be written to the \code{featureData}'s \code{disp_} columns
-     and hence will be used by the functions \code{\link{nbinomTest}}
-     and \code{\link{fitNbinomGLMs}}.
+     and hence will be used by the functions \code{\link{XBSeqTest}}
 
      \itemize{
      \item \code{fit-only} - use only the fitted value, i.e., the
@@ -130,7 +129,7 @@
 
    \item{modelFrame}{
       By default, the information in \code{conditions(object)} or \code{pData(object)} is used to
-      determine which samples are replicates (see \code{\link{newCountDataSet}}).
+      determine which samples are replicates (see \code{\link{newXBSeqDataSet}}).
       For \code{method="pooled"}, a data frame can be passed
       here, and all rows that are identical in this data frame are considered
       to indicate replicate samples in \code{object}. For \code{method="pooled-CR"},

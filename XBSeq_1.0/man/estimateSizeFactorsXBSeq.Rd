@@ -33,7 +33,6 @@
 \code{\link{estimateSizeFactorsForMatrixXBSeq}}
 }
 \examples{
-# adopted from DESeq
    cds <- makeExampleXBSeqDataSet()
    cds <- estimateSizeFactorsXBSeq( cds )
    sizeFactors( cds )

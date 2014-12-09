@@ -2,6 +2,7 @@
 \Rdversion{1.1}
 \docType{class}
 \alias{XBSeqDataSet-class}
+\alias{XBSeqDataSet}
 \alias{conditions,XBSeqDataSet-method}
 \alias{conditions<-,XBSeqDataSet-method}
 \alias{counts,XBSeqDataSet-method}

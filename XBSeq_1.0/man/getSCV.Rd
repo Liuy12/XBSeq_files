@@ -48,6 +48,7 @@ getSCV(means, variances, sizeFactors, fitType = c("parametric", "local"), locfit
 }
 \examples{
    cds <- makeExampleXBSeqDataSet()
-   data <- getCountParams( counts(cds), sizeFactors(cds), conditions(cds) )
+   cds <- estimateSizeFactorsXBSeq(cds)
+   data <- getCountParams( counts(cds), sizeFactors(cds))
    SCVf <- getSCV( data$baseMean, data$baseVar, sizeFactors(cds))
 }

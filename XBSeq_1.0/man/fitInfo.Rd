@@ -7,15 +7,15 @@
    Same method is adopted from DESeq to access the fit information from a XBSeqDataSet
 }
 \usage{
-fitInfo( cds, name=NULL )
+fitInfo( XB, name=NULL )
 }
 \arguments{
-  \item{cds}{
+  \item{XB}{
       a XBSeqDataSet
 }
   \item{name}{
       if \code{estimateSCV} was called with \code{method="per-condition"}
-      a name hasd to specified. Try \code{ls(cds@fitInfo}.
+      a name hasd to specified. Try \code{ls(XB@fitInfo}.
 }
 }
 \seealso{\code{\link{estimateSCV}} }

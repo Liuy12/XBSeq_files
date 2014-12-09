@@ -9,13 +9,14 @@
    Conditions extract the experimental design information similar as used in DESeq. 
 }
 \usage{
-\S4method{conditions}{XBSeqDataSet}(object)
-\S4method{conditions}{XBSeqDataSet}(object) <- value
+\S4method{conditions}{XBSeqDataSet}(object,...)
+\S4method{conditions}{XBSeqDataSet}(object,...) <- value
 }
 \arguments{
   \item{object}{a XBSeqDataSet}
   \item{value}{experimental design information}
-}
+  \item{...}{Further arguments will be ignored}
+  }
 \value{
    The experimental design information for a XBSeqDataSet object
 }
@@ -28,7 +29,6 @@
    R106, \url{http://dx.doi.org/10.1186/gb-2010-11-10-r106}
 }
 \examples{
-# This example is adopted from DESeq
    cds <- makeExampleXBSeqDataSet()
    conditions( cds )
 }  

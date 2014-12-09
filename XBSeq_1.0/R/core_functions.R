@@ -12,7 +12,7 @@ setGeneric("estimateSCV",function(object, ...) standardGeneric('estimateSCV'))
 setMethod("estimateSCV", signature(object="XBSeqDataSet"),
           function( object, observe, background, method = c( "pooled", "pooled-CR", "per-condition", "blind" ),
                     sharingMode = c( "maximum", "fit-only", "gene-est-only" ),
-                    fitType = c( "parametric", "local" ),
+                    fitType = c("local", "parametric"),
                     locfit_extra_args=list(), lp_extra_args=list(),
                     modelFrame = NULL, modelFormula = count ~ condition, ... )
           {

@@ -32,7 +32,7 @@ newXBSeqDataSet(countData, conditions, sizeFactors = NULL, phenoData = NULL, fea
 }
 }
 \details{
-   See also \code{\link{CountDataSet-class}} and the documentation of \code{eSet} (package Biobase) for the meaning of the other slots, which XBSeqDataSet
+   See also \code{\link{XBSeqDataSet}} and the documentation of \code{eSet} (package Biobase) for the meaning of the other slots, which XBSeqDataSet
    inherits from eSet (but which the present package does not use).
 }
 \value{

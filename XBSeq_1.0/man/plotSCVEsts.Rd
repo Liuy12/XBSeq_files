@@ -7,7 +7,7 @@
    Plot estimated SCV based on ggplot2
 }
 \usage{
-plotSCVEsts(XB, name = NULL, ymin, linecol = "red3", xlab = "mean of normalized counts", ylab = "SCV", ...)
+plotSCVEsts(XB, name = NULL, ymin, linecol = "red3", xlab = "mean of normalized counts", ylab = "SCV")
 }
 \arguments{
   \item{XB}{
@@ -42,6 +42,6 @@ plotSCVEsts(XB, name = NULL, ymin, linecol = "red3", xlab = "mean of normalized 
    Signal <- estimateRealcount(observe_signal, background_noise)
    XB <- newXBSeqDataSet(Signal,factor(c('C1','C1','C2','C2')))
    XB <- estimateSizeFactorsXBSeq( XB )
-   XB <-estimateSCV( XB, observe, background)
+   XB <-estimateSCV( XB, observe_signal, background_noise)
    plotSCVEsts(XB)
 }

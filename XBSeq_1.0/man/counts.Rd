@@ -32,7 +32,6 @@
    R106, \url{http://dx.doi.org/10.1186/gb-2010-11-10-r106}
 }
 \examples{
-   # Adopted from DESeq
    cds <- makeExampleXBSeqDataSet()
    head( counts( cds ) )
 }   

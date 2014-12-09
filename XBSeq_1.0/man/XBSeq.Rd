@@ -7,7 +7,7 @@
    A wrapper function to carry out XBSeq analysis procedure
 }
 \usage{
-XBSeq(observe, background, conditions, method = "pooled", sharingMode = "maximum", fitType = "parametric", pvals_only = FALSE)
+XBSeq(observe, background, conditions, method = "pooled", sharingMode = "maximum", fitType = "local", pvals_only = FALSE)
 }
 \arguments{
   \item{observe}{

@@ -151,7 +151,7 @@ getSCVCoxReid <- function( counts, modelFormula, modelFrame,
 
   } else if( fitType == "parametric" )
 
-    ans <- parametricDispersionFit( means, disps )
+    ans <- parametricscvFit( means, disps )
 
   else
     stop( "Unkknown fitType." )
@@ -166,7 +166,7 @@ fitInfo <- function( XB, name=NULL )
 {
   stopifnot( is( XB, "XBSeqDataSet" ) )
   if( length( ls( XB@fitInfo ) ) == 0 )
-    stop( "No fits available. Call 'estimateDispersions' first." )
+    stop( "No fits available. Call 'estimateSCV' first." )
   if( length( ls( XB@fitInfo ) ) > 1 && is.null(name) )
     stop( "More than one fitInfo object available. Specify by name. (See 'ls(XB@fitInfo)' for a list.)" )
   if( length( ls( XB@fitInfo ) ) == 1 && is.null(name) )
@@ -187,7 +187,7 @@ parametricscvFit <- function( means, disps )
     oldcoefs <- coefs
     coefs <- coefficients(fit)
     if( !all( coefs > 0 ) )
-      stop( "Parametric dispersion fit failed. Try a local fit and/or a pooled estimation. (See '?estimateDispersions')" )
+      stop( "Parametric dispersion fit failed. Try a local fit and/or a pooled estimation. (See '?estimateSCV')" )
     if( sum( log( coefs / oldcoefs )^2 ) < 1e-6 )
       break
     iter <- iter + 1

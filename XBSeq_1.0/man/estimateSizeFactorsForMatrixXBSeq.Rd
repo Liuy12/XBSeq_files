@@ -29,7 +29,6 @@ estimateSizeFactorsForMatrixXBSeq(counts, locfunc = median)
    Yuanhang Liu
 }
 \examples{
-# example adopted from DESeq
    cds <- makeExampleXBSeqDataSet()
    estimateSizeFactorsForMatrixXBSeq( counts(cds) )
 }
