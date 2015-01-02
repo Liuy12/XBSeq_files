@@ -62,25 +62,35 @@ Report bugs as issues on our [GitHub repository](https://github.com/Liuy12/XBSeq
 sessionInfo()
 ```
 ```
-# R version 3.0.2 (2013-09-25)
+# R version 3.1.2 (2014-10-31)
 # Platform: x86_64-w64-mingw32/x64 (64-bit)
-# 
+
 # locale:
-# [1] LC_COLLATE=English_United States.1252  LC_CTYPE=English_United States.1252   
-# [3] LC_MONETARY=English_United States.1252 LC_NUMERIC=C                          
+# [1] LC_COLLATE=English_United States.1252 
+# [2] LC_CTYPE=English_United States.1252   
+# [3] LC_MONETARY=English_United States.1252
+# [4] LC_NUMERIC=C                          
 # [5] LC_TIME=English_United States.1252    
-# 
+
 # attached base packages:
-# [1] parallel  stats     graphics  grDevices utils     datasets  methods   base     
-# 
+# [1] stats     graphics  grDevices utils     datasets 
+# [6] methods   base     
+
 # other attached packages:
-# [1] XBSeq_1.0          ggplot2_1.0.0      locfit_1.5-9.1     matrixStats_0.10.0 pracma_1.7.0      
-# [6] Biobase_2.22.0     BiocGenerics_0.8.0
-# 
+# [1] XBSeq_0.99.0 MASS_7.3-35 
+
 # loaded via a namespace (and not attached):
-# [1] colorspace_1.2-4  digest_0.6.4      grid_3.0.2        gtable_0.1.2      lattice_0.20-23  
-# [6] MASS_7.3-29       munsell_0.4.2     plyr_1.8.1        proto_0.3-10      R.methodsS3_1.6.1
-# [11] Rcpp_0.11.2       reshape2_1.4      scales_0.2.4      stringr_0.6.2     tools_3.0.2      
+# [1] Biobase_2.26.0      BiocGenerics_0.12.1
+# [3] colorspace_1.2-4    digest_0.6.8       
+# [5] ggplot2_1.0.0       grid_3.1.2         
+# [7] gtable_0.1.2        lattice_0.20-29    
+# [9] locfit_1.5-9.1      matrixStats_0.12.2 
+# [11] munsell_0.4.2       parallel_3.1.2     
+# [13] plyr_1.8.1          pracma_1.7.9       
+# [15] proto_0.3-10        R.methodsS3_1.6.1  
+# [17] Rcpp_0.11.3         reshape2_1.4.1     
+# [19] scales_0.2.4        stringr_0.6.2      
+# [21] tools_3.1.2          
 ```
 # Acknowledgements 
 XBSeq is implemented in R based on the source code from DESeq. 
