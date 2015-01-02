@@ -1,0 +1,24 @@
+exportPattern("^[[:alpha:]]+")
+import(ggplot2)
+import(Biobase)
+import(locfit)
+import(methods)
+import(MASS)
+import(BiocGenerics)
+importFrom(pracma, repmat)
+importFrom(matrixStats, rowVars)
+exportMethods(
+    "conditions",
+    "conditions<-",
+    "counts",
+    "counts<-",
+    "dispTable",
+    "dispTable<-",
+    "estimateSCV",
+    "estimateSizeFactorsXBSeq",
+    "sizeFactors",
+    "sizeFactors<-" 
+)
+exportClasses(
+    "XBSeqDataSet" 
+)
