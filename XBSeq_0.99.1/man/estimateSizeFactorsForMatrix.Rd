@@ -1,13 +1,13 @@
-\name{estimateSizeFactorsForMatrixXBSeq}
-\alias{estimateSizeFactorsForMatrixXBSeq}
+\name{estimateSizeFactorsForMatrix}
+\alias{estimateSizeFactorsForMatrix}
 \title{
    Internal function to estimate the size factors
 }
 \description{
-   The same method is adopted from DESeq to estimate the size factors
+   The is the same method as used in DESeq and DESeq2 to estimate the size factors
 }
 \usage{
-estimateSizeFactorsForMatrixXBSeq(counts, locfunc = median)
+estimateSizeFactorsForMatrix(counts, locfunc = median)
 }
 \arguments{
   \item{counts}{
@@ -26,9 +26,9 @@ estimateSizeFactorsForMatrixXBSeq(counts, locfunc = median)
    R106, \url{http://dx.doi.org/10.1186/gb-2010-11-10-r106}
 }
 \author{
-   Yuanhang Liu
+   Simon Anders
 }
 \examples{
    cds <- makeExampleXBSeqDataSet()
-   estimateSizeFactorsForMatrixXBSeq( counts(cds) )
+   estimateSizeFactorsForMatrix( counts(cds) )
 }

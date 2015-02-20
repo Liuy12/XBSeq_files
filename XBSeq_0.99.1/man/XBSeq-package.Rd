@@ -16,10 +16,10 @@
 \tabular{ll}{
 Package: \tab XBSeq\cr
 Type: \tab Package\cr
-Version: \tab 1.0\cr
-Date: \tab 2014-11-19\cr
+Version: \tab 0.99.0\cr
+Date: \tab 2015-02-13\cr
 License: \tab >=GPL3\cr
-Depends: \tab Biobase, pracma, matrixStats, locfit, ggplot2\cr
+Imports: \tab DESeq2, Biobase, pracma, matrixStats, ggplot2,locfit, methods, BiocGenerics\cr
 }
 }
 \author{

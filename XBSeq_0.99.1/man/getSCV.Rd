@@ -1,5 +1,6 @@
 \name{getSCV}
 \alias{getSCV}
+\alias{adjustScv}
 \title{
    Extract estimation of squared coefficient of variation 
 }
@@ -48,7 +49,7 @@ getSCV(means, variances, sizeFactors, fitType = c("parametric", "local"), locfit
 }
 \examples{
    cds <- makeExampleXBSeqDataSet()
-   cds <- estimateSizeFactorsXBSeq(cds)
+   cds <- estimateSizeFactors(cds)
    data <- getCountParams( counts(cds), sizeFactors(cds))
    SCVf <- getSCV( data$baseMean, data$baseVar, sizeFactors(cds))
 }

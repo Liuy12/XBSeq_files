@@ -1,20 +1,34 @@
-setGeneric("estimateSizeFactorsXBSeq",function(object, ...) standardGeneric('estimateSizeFactorsXBSeq'))
-setMethod("estimateSizeFactorsXBSeq", signature(object="XBSeqDataSet"),
-          function( object, locfunc=median, ... ) {
-            if( length(list(...)) != 0 )
-              warning( "in estimateSizeFactors: Ignoring extra argument(s)." )
-            sizeFactors(object) <- estimateSizeFactorsForMatrixXBSeq( counts(object), locfunc )
-            object
-          })
+setGeneric("fitInfo", function(object, name=NULL) standardGeneric("fitInfo"))
+
+
+setMethod('fitInfo', signature(object = "XBSeqDataSet"), 
+          function( object, name){
+            if( length( ls( object@fitInfo ) ) == 0 )
+              stop( "No fits available. Call 'estimateSCV' first." )
+            if( length( ls( object@fitInfo ) ) > 1 && is.null(name) )
+              stop( "More than one fitInfo object available. Specify by name. (See 'ls(XB@fitInfo)' for a list.)" )
+            if( length( ls( object@fitInfo ) ) == 1 && is.null(name) )
+              name = ls( object@fitInfo )[ 1 ]
+            object@fitInfo[[ name]]
+          }
+)
+
+# 
+# setGeneric("estimateSizeFactorsXBSeq",function(object, ...) standardGeneric('estimateSizeFactorsXBSeq'))
+# 
+# 
+# setMethod("estimateSizeFactorsXBSeq", signature(object="XBSeqDataSet"),
+#           estimateSizeFactors)
 
 
 setGeneric("estimateSCV",function(object, ...) standardGeneric('estimateSCV'))
+
+
 setMethod("estimateSCV", signature(object="XBSeqDataSet"),
-          function( object, observe, background, method = c( "pooled", "pooled-CR", "per-condition", "blind" ),
+          function( object, observe, background, method = c( "pooled", "per-condition", "blind" ),
                     sharingMode = c( "maximum", "fit-only", "gene-est-only" ),
                     fitType = c("local", "parametric"),
-                    locfit_extra_args=list(), lp_extra_args=list(),
-                    modelFrame = NULL, modelFormula = count ~ condition, ... )
+                    locfit_extra_args=list(), lp_extra_args=list(), ... )
           {
             stopifnot( is( object, "XBSeqDataSet" ) )
             if( any( c( is.na( sizeFactors(object) ) ) ) )
@@ -24,14 +38,15 @@ setMethod("estimateSCV", signature(object="XBSeqDataSet"),
             fitType <- match.arg( fitType )
             if( length(list(...)) != 0 )
               warning( "in estimateSCV: Ignoring extra argument(s)." )
-            if( object@multivariateConditions && ! method %in% c( "blind", "pooled", "pooled-CR" ) )
-              stop( "You have specified multivariate conditions (i.e., passed a data frame with conditions). In this case, you cannot use method 'per-condition'." )
-            if( sharingMode == "gene-est-only" && length(pData(object)$condition)/length(levels(pData(object)$condition)) <= 2 )
-              warning( "in estimateDispersions: sharingMode=='gene-est-only' will cause inflated numbers of false positives unless you have many replicates." )
+            if( sharingMode == "gene-est-only" && length(conditions(object))/length(levels(conditions(object))) <= 2 )
+              warning( "in estimateSCV: sharingMode=='gene-est-only' will cause inflated numbers of false positives unless you have many replicates." )
             #Remove results from previous fits
-            fData(object) <- fData(object)[ , ! colnames(fData(object)) %in% paste( "disp", object@dispTable, sep="_" ), drop=FALSE ]
-            object@dispTable <- character()
-            object@fitInfo = new.env( hash=TRUE )
+            index <- which(! colnames(dispEst(object)) %in% paste( "disp", object@dispTable, sep="_" ))
+            if(length(index)){
+              dispEst(object) <- dispEst(object, index)
+              object@dispTable <- character()
+              object@fitInfo = new.env( hash=TRUE )
+            }
             if( method == "blind" ) {
               data <- getCountParams( counts(object), sizeFactors(object) )
               data_var <- getsignalVars(observe, background)
@@ -43,17 +58,13 @@ setMethod("estimateSCV", signature(object="XBSeqDataSet"),
                 fittedSCVEsts = SCVf$SCVfunc( data$baseMean ),
                 df = ncol(counts(object)) - 1,
                 sharingMode = sharingMode )
-              if( object@multivariateConditions )
-                dispTable(object) <- c( "_all" = "blind" )
-              else {
-                a <- rep( "blind", length( levels( conditions(object) ) ) )
-                names(a) <- levels( conditions(object) )
-                object@dispTable <- a }
-
+              a <- rep( "blind", length( levels( conditions(object) ) ) )
+              names(a) <- levels( conditions(object) )
+              object@dispTable <- a
             } else if( method == "per-condition" ) {
               replicated <- names( which( tapply( conditions(object), conditions(object), length ) > 1 ) )
               if( length( replicated ) < 1 )
-                stop( "None of your conditions is replicated. Use method='blind' to estimate across conditions, or 'pooled-CR', if you have crossed factors." )
+                stop( "None of your conditions is replicated. Use method='blind' to estimate across conditions, if you have crossed factors." )
               nonreplicated <- names( which( tapply( conditions(object), conditions(object), length ) == 1 ) )
               overall_basemeans <- rowMeans( counts( object, normalized=TRUE ) )
               for( cond in replicated ) {
@@ -68,58 +79,33 @@ setMethod("estimateSCV", signature(object="XBSeqDataSet"),
                   fittedSCVEsts = SCVf$SCVfunc( overall_basemeans ),     # Note that we do not use bmv$baseMean here
                   df = sum(cols) - 1,
                   sharingMode = sharingMode ) }
-
+              
               object@dispTable <- sapply( levels(conditions(object)), function( cond )
                 ifelse( cond %in% replicated, cond, "max" ) )
-
-            } else if( method == "pooled" || method == "pooled-CR" ) {
-
-              if( method == "pooled" ) {
-
-                if( object@multivariateConditions ) {
-                  if( is.null( modelFrame ) )
-                    modelFrame <- pData(object)[ , colnames(pData(object)) != "sizeFactor" ]
-                  conds <- modelToConditionFactor( modelFrame ) }
-                else
-                  conds <- conditions(object)
-                if( !any( duplicated( conds ) ) )
-                  stop( "None of your conditions is replicated. Use method='blind' to estimate across conditions, or 'pooled-CR', if you have crossed factors." )
-                data <- getCountParamsPooled( counts(object), sizeFactors(object), conds )
-                baseMeans <- data$baseMean
-                data_var <- getsignalVars(observe, background)
-                SCVf <- getSCV( data$baseMean,
-                                data$baseVar, sizeFactors(object), fitType, locfit_extra_args, lp_extra_args )
-                df <- ncol(counts(object)) - length(unique(conds))
-
-              } else {  # method == "pooled-CR"
-                if( is.null( modelFrame ) )
-                  modelFrame <- pData(object)[ , colnames(pData(object)) != "sizeFactor", drop=FALSE ]
-                baseMeans <- rowMeans( counts( object, normalized=TRUE ) )
-                SCVf <- getSCVCoxReid( counts(object), modelFormula, modelFrame,
-                                sizeFactors(object), fitType, locfit_extra_args, lp_extra_args )
-                df <- NA
-              }
+              
+            } else if( method == "pooled" ) {
+              conds <- conditions(object)
+              if( !any( duplicated( conds ) ) )
+                stop( "None of your conditions is replicated. Use method='blind' to estimate across conditions, or 'pooled-CR', if you have crossed factors." )
+              data <- getCountParamsPooled( counts(object), sizeFactors(object), conds )
+              baseMeans <- data$baseMean
+              data_var <- getsignalVars(observe, background)
+              SCVf <- getSCV( data$baseMean,
+                              data$baseVar, sizeFactors(object), fitType, locfit_extra_args, lp_extra_args )
+              df <- ncol(counts(object)) - length(unique(conds))
               object@fitInfo[[ "pooled" ]] <- list(
                 perGeneSCVEsts = SCVf$SCV,
                 SCVFunc = SCVf$SCVfunc,
                 fittedSCVEsts = SCVf$SCVfunc( baseMeans ),
                 df = df,
                 sharingMode = sharingMode )
-
-              dt = if( object@multivariateConditions ) c( "_all" = "pooled" ) else character(0)
-
-              if("condition" %in% colnames(pData(object))) {
-                a <- rep( "pooled", length( levels( conditions(object) ) ) )
-                names(a) <- levels( conditions(object) )
-                dt = c(dt, a)
-              }
-              dispTable(object) = dt
-
+              a <- rep( "pooled", length( levels( conditions(object) ) ) )
+              names(a) <- levels( conditions(object) )
+              dispTable(object) = a
             } else
               stop(sprintf("Invalid method '%s'.", method))
-
             for( n in ls(object@fitInfo) )
-              fData(object)[[ paste( "disp", n, sep="_" ) ]] <-
+              dispEst(object, paste( "disp", n, sep="_" ) ) <-
               switch( sharingMode,
                       `fit-only`      = object@fitInfo[[ n ]]$fittedSCVEsts,
                       `gene-est-only` = {
@@ -129,11 +115,11 @@ setMethod("estimateSCV", signature(object="XBSeqDataSet"),
                       `maximum`       = pmax( object@fitInfo[[ n ]]$fittedSCVEsts, object@fitInfo[[ n ]]$perGeneSCVEsts, na.rm=TRUE ),
                       stop(sprintf("Invalid sharingMode '%s'.", sharingMode))
               ) ## switch
-
+            
             if( "max" %in% object@dispTable )
-              fData(object)[["disp_max"]] <- do.call( pmax,
-                                                      c( fData(object)[ , colnames(fData(object)) %in% paste( "disp", object@dispTable, sep="_" ), drop=FALSE ], na.rm=TRUE ) )
-
+              dispEst(object, "disp_max") <- do.call( pmax,
+                                                c( dispEst(object, which(colnames(dispEst(object)) %in% paste( "disp", object@dispTable, sep="_" )) ), na.rm=TRUE ) )
+            
             validObject( object )
             object
           })
@@ -152,10 +138,10 @@ XBSeqTest <- function( XB, condA, condB, pvals_only=FALSE )
   stopifnot( condB %in% levels(conditions(XB)) )
   colA <- conditions(XB)==condA
   colB <- conditions(XB)==condB
-
-  rawScvA <- fData(XB)[ , paste( "disp", dispTable(XB)[condA], sep="_" ) ]
-  rawScvB <- fData(XB)[ , paste( "disp", dispTable(XB)[condB], sep="_" ) ]
-
+  
+  rawScvA <- dispEst(XB, paste( "disp", dispTable(XB)[condA], sep="_" ))
+  rawScvB <- dispEst(XB, paste( "disp", dispTable(XB)[condB], sep="_" ))
+  
   pval <- XBSeqTestForMatrices(
     counts(XB)[,colA],
     counts(XB)[,colB],
@@ -163,7 +149,7 @@ XBSeqTest <- function( XB, condA, condB, pvals_only=FALSE )
     sizeFactors(XB)[colB],
     rawScvA,
     rawScvB )
-
+  
   if( pvals_only )
     pval
   else {
@@ -186,8 +172,8 @@ XBSeqTest <- function( XB, condA, condB, pvals_only=FALSE )
 # a wrapper function once and for all
 XBSeq <- function( observe, background, conditions, method='pooled', sharingMode='maximum', fitType='local', pvals_only=FALSE ){
   Signal <- estimateRealcount(observe, background)
-  XB <- newXBSeqDataSet(Signal,conditions)
-  XB <- estimateSizeFactorsXBSeq( XB )
+  XB <- XBSeqDataSet(Signal,conditions)
+  XB <- estimateSizeFactors( XB )
   XB <-estimateSCV( XB, observe, background, method=method, sharingMode=sharingMode, fitType=fitType )
   Teststas <- XBSeqTest( XB, levels(conditions)[1L], levels(conditions)[2L], pvals_only=pvals_only )
   Teststas
