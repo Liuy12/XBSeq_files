@@ -3,94 +3,156 @@
 XBSeq is a novel algorithm for testing RNA-seq differential expression (DE), where a statistical model was established
 based on the assumption that observed signals are the convolution of true expression signals and sequencing noises. The
 mapped reads in non-exonic regions are considered as sequencing noises, which follows a Poisson distribution. Given
-measureable observed and noise signals from RNA-seq data, true expression signals, assuming governed by the negative
+measurable observed signal and background noise from RNA-seq data, true expression signals, assuming governed by the negative
 binomial distribution, can be delineated and thus the accurate detection of differential expressed genes
 
 # Installation 
 
-Currently we have already finalizing the documentation for XBSeq to be released in bioconductor. Right now the algorithm is implemented in R. To use the algorithm, you can either download the XBSeq_1.0.tar.gz file and install locally or you can install XBSeq by the following steps: 
-
-Firstly, please make sure that the devtools package installed and loaded in your libraries
-```r
-install.packages("devtools")
-library(devtools)
+XBSeq can be installed from Bioconductor by 
+```{r,eval=FALSE}
+source('http://www.bioconductor.org/biocLite.R')
+biocLite("XBSeq")
 ```
-Then, install XBSeq directly from github 
-```r
-install_github("Liuy12/XBSeq/XBSeq_0.99.2")
-library('XBSeq')
+```{r,message = FALSE}
+library("XBSeq")
 ```
-XBSeq depends on Biobase, locfit, pracma, matrixStats, ggplot2 from Bioconductor
+If you would like to install the development version of XBSeq, it is recommended 
+that you refer to the github page of XBSeq. 
 
 # Use XBSeq for testing differential expression 
 
-### HTseq counting
+### HTseq procedure
 
-In order to use XBSeq for testing DE, we need to run HTSeq twice to measure the reads mapped to exnoic regions (observed signal) and non-exonic regions (background noise). Generally speaking, you will need to run the following code to generate observed read count and background read count. 
+In order to use XBSeq for testing DE, after sequence alignment, we need to run HTSeq twice to measure the reads mapped to exonic regions (observed signal) and non-exonic regions (background noise). Generally speaking, you will need to run the following code to generate observed signal and background noise. 
 
-```
+```{r,engine='python',eval=FALSE}
 htseq-count [options] <alignment_file> <gtf_file> > Observed_count.txt
 htseq-count [options] <alignment_file> <gtf_file_bg> > background_count.txt
 ```
 
-Details regarding how to use HTSeq can be found here:
+Details regarding how HTSeq works can be found here:
 http://www-huber.embl.de/HTSeq/doc/count.html
 
-The gtf file used to measure background noise can be downloaded in the gtf folder. 
+The gtf file used to measure observed signal can be downloaded from UCSC database: http://genome.ucsc.edu. The gtf file used to measure background noise can be downloaded in the gtf folder from github: https://github.com/Liuy12/XBSeq. If you would like to construct the gtf file by yourself, we also have deposited the perl script we used to construct the gtf file in github. Details regarding the procedure we used to construct the background gtf file can be found in the Details section in the vignette.
 
 ### XBSeq testing for DE 
 
-After HTSeq procedure, the we will have two measurements for each gene, the observed signal and background noise. The differential expression analysis will be carried out as follows:
+After HTSeq procedure, then we will have two measurements for each gene, the observed signal and background noise. Here we will use a mouse RNA-seq dataset, which contains 3 replicates of wild type mouse liver tissues (WT) and 3 replicates of Myc transgenic mouse liver tissues (MYC). The dataset is obtained from Gene Expression Omnibus [(GSE61875)](http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE61875). 
 
-```r
-# Observe and background are the output matrix from HTSeq
-Signal <- estimateRealcount(observe, background)
-# conditions are the design matrix for the experiment
-XB <- newXBSeqDataSet(Signal,conditions)
-XB <- estimateSizeFactorsXBSeq( XB )
-XB <-estimateSCV( XB, observe, background, method='pooled', sharingMode='maximum', fitType='local' )
-Teststas <- XBSeqTest( XB, levels(conditions)[1L], levels(conditions)[2L], pvals_only=pvals_only )
+As a preliminary step, we have already carried out HTSeq procedure mentioned above to generate observed signal and background noise for each gene. The two datasets can be loaded into user's working space by 
 
-# Alternatively, all the codes above can be done with a wrapper function XBSeq
-Teststats <- XBSeq( observe, background, conditions, method='pooled', sharingMode='maximum', fitType='local', pvals_only=FALSE )
+```{r}
+data(ExampleData)
 ```
+
+We can first take a look at the two datasets:
+
+```{r}
+head(Observed)
+head(Background)
+```
+
+Rows represent reads mapped to each gene or corresponding background region. Column represent samples. And differential expression analysis will be carried out as follows:
+
+Observe and background are the output matrix from HTSeq
+
+```{r}
+Signal <- estimateRealCount(Observed, Background)
+```
+
+Conditions are the design matrix for the experiment
+
+```{r,tidy=TRUE}
+conditions <- factor(c(rep('C',3), rep('T', 3)))
+XB <- XBSeqDataSet(Signal,conditions)
+XB <- estimateSizeFactors( XB )
+XB <-estimateSCV( XB, Observed, Background, method='pooled', sharingMode='maximum', fitType='local' )
+```
+
+Take a look at the scv fitting information 
+
+```{r,fig.width=5,fig.height=5}
+plotSCVEsts(XB)
+```
+
+Carry out the DE test by using function XBSeqTest
+
+```{r}
+Teststas <- XBSeqTest( XB, levels(conditions)[1L], levels(conditions)[2L] )
+```
+
+Plot Maplot based on test statistics
+
+```{r,fig.width=5,fig.height=5}
+MAplot(Teststas, padj = FALSE, pcuff = 0.01, lfccuff = 1)
+```
+
+```{r,eval=FALSE,tidy=TRUE}
+# Alternatively, all the codes above can be done with a wrapper function XBSeq
+Teststats <- XBSeq( Observed, Background, conditions, method='pooled', sharingMode='maximum',
+  fitType='local', pvals_only=FALSE )
+```
+
+### Compare the results with DESeq
+
+Now we will carry out DE analysis on the same dataset by using DESeq and then compare the results obtained by these two methods
+
+If you have not installed DESeq before, DESeq is also available from Bioconductor
+
+```{r,eval=FALSE}
+biocLite("DESeq")
+```
+
+Then DE analysis for DESeq can be carried out by:
+
+```{r,message=FALSE}
+library('DESeq')
+library('ggplot2')
+de <- newCountDataSet(Observed, conditions)
+de <- estimateSizeFactors(de)
+de <- estimateDispersions(de, method = "pooled", fitType="local")
+res <- nbinomTest(de, levels(conditions)[1], levels(conditions)[2])
+```
+
+Then we can compare the results from XBSeq and DESeq
+
+```{r,warning=FALSE,message=FALSE,tidy=TRUE, fig.width=5,fig.height=5}
+DE_index_DESeq <- with(res, which(pval<0.01 & abs(log2FoldChange)>1))
+DE_index_XBSeq <- with(Teststas, which(pval<0.01 & abs(log2FoldChange)>1))
+DE_index_inters <- intersect(DE_index_DESeq, DE_index_XBSeq)
+DE_index_DESeq_uniq <- setdiff(DE_index_DESeq, DE_index_XBSeq)
+DE_plot <- MAplot(Teststas, padj = FALSE, pcuff = 0.01, lfccuff = 1, shape=16)
+DE_plot + geom_point( data=Teststas[DE_index_inters,], aes(x=baseMean, y=log2FoldChange),
+                      color= 'green', shape=16 ) + 
+  geom_point( data=Teststas[DE_index_DESeq_uniq,], aes( x=baseMean, y=log2FoldChange ),
+              color= 'blue', shape=16 )
+```
+
+The red dots indicate DE genes identified only by XBSeq. Then green dots are the shared results of XBSeq and DESeq. The blue dots are DE genes identified only by DESeq. 
+
+# Details 
+
+### Construction of gtf file for background region
+
+* Exonic region annotation is obtained from UCSC database. 
+
+* Non-exonic regions are constructed by following several criteria: 
+    1. Download refFlat table from UCSC database 
+    2. Several functional elements (mRNA, peudo genes, etc.) of the genome are excluded from the whole genome annotation. 
+    3. Construct the background region for each gene by making the region to have the same sturcture or length as the exonic region of the gene. 
+
+More details regarding how do we construct the background region annotation file of an real example can be found in manual page of ExampleData and also our publication of XBSeq.  
+
 # Bug reports
-Report bugs as issues on our [GitHub repository](https://github.com/Liuy12/XBSeq) or you can report directly to my email: liuy12@uthscsa.edu.
+Report bugs as issues on our [GitHub repository](https://github.com/Liuy12/XBSeq/issues) or you can report directly to my email: liuy12@uthscsa.edu.
 
 # Session information 
-```r
+```{r}
 sessionInfo()
 ```
-```
-# R version 3.1.2 (2014-10-31)
-# Platform: x86_64-w64-mingw32/x64 (64-bit)
 
-# locale:
-# [1] LC_COLLATE=English_United States.1252 
-# [2] LC_CTYPE=English_United States.1252   
-# [3] LC_MONETARY=English_United States.1252
-# [4] LC_NUMERIC=C                          
-# [5] LC_TIME=English_United States.1252    
-
-# attached base packages:
-# [1] stats     graphics  grDevices utils     datasets 
-# [6] methods   base     
-
-# other attached packages:
-# [1] XBSeq_0.99.0 MASS_7.3-35 
-
-# loaded via a namespace (and not attached):
-# [1] Biobase_2.26.0      BiocGenerics_0.12.1
-# [3] colorspace_1.2-4    digest_0.6.8       
-# [5] ggplot2_1.0.0       grid_3.1.2         
-# [7] gtable_0.1.2        lattice_0.20-29    
-# [9] locfit_1.5-9.1      matrixStats_0.12.2 
-# [11] munsell_0.4.2       parallel_3.1.2     
-# [13] plyr_1.8.1          pracma_1.7.9       
-# [15] proto_0.3-10        R.methodsS3_1.6.1  
-# [17] Rcpp_0.11.3         reshape2_1.4.1     
-# [19] scales_0.2.4        stringr_0.6.2      
-# [21] tools_3.1.2          
-```
 # Acknowledgements 
-XBSeq is implemented in R based on the source code from DESeq. 
+XBSeq is implemented in R based on the source code from DESeq and DESeq2. 
+
+# References
+Hung-I Harry Chen, Yuanhang Liu, Yi Zou, Zhao Lai, Devanand Sarkar, Yufei Huang, Yidong Chen, doi: http://dx.doi.org/10.1101/016196
