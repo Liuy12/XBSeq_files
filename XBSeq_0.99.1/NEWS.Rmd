@@ -1,2 +1,0 @@
-Package submission, Janaury 2, 2015, version 0.99.0
-Package second submission, February 19, 2015, version 0.99.1
