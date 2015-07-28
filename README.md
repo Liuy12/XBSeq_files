@@ -5,23 +5,6 @@
 [![commit](http://www.bioconductor.org/shields/commits/bioc/XBSeq.svg)](http://www.bioconductor.org/packages/devel/bioc/html/XBSeq.html#svn_source)
 [![download](http://www.bioconductor.org/shields/downloads/XBSeq.svg)](http://bioconductor.org/packages/stats/bioc/XBSeq.html)
 
----
-title: "Differential expression analysis of count data using XBSeq package"
-author: "Yuanhang Liu"
-date: "`r Sys.Date()`"
-vignette: >
-  %\VignetteIndexEntry{Differential expression analysis of count data using XBSeq package}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8} 
-output: 
-  BiocStyle::html_document:
-    toc: true
----
-
-```{r style, echo = FALSE, results = 'asis'}
-BiocStyle::markdown()
-```
-
 ## Introduction 
 
 XBSeq is a novel algorithm for testing RNA-seq differential expression (DE), where a statistical model was established based on the assumption that observed signals are the convolution of true expression signals and sequencing noises. The mapped reads in non-exonic regions are considered as sequencing noises, which follows a Poisson distribution. Given measurable observed signal and background noise from RNA-seq data, true expression signals, assuming governed by the negative binomial distribution, can be delineated and thus the accurate detection of differential expressed genes
